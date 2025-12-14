@@ -1,0 +1,32 @@
+{
+    "name": "Aegis Dev",
+    "dockerComposeFile": "../docker-compose.yml",
+    "service": "aegis",
+    "workspaceFolder": "/app",
+
+    // Override command (don't run app in dev mode)
+    "overrideCommand": true,
+
+    // VSCode extensions (installed inside container)
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-python.pylint",
+                "ms-python.black-formatter",
+                "charliermarsh.ruff"
+            ],
+            "settings": {
+                "python.defaultInterpreterPath": "/usr/local/bin/python",
+                "python.formatting.provider": "black",
+                "editor.formatOnSave": true
+            }
+        }
+    },
+
+    // Port forwarding
+    "forwardPorts": [5432, 6379],
+
+    // Run after container creation
+    "postCreateCommand": "pip install -r requirements.txt"
+}

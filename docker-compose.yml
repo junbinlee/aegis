@@ -1,0 +1,53 @@
+services:
+  # Main application
+  aegis:
+    build: .
+    container_name: aegis-app
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - .:/app                # Mount entire project (for development)
+      - ./data:/app/data      # Persist data
+      - ./logs:/app/logs      # Persist logs
+    depends_on:
+      - db
+      - redis
+    networks:
+      - aegis-network
+    # Dev Container settings
+    stdin_open: true
+    tty: true
+
+  # PostgreSQL database
+  db:
+    image: postgres:15-alpine
+    container_name: aegis-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-aegis}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-aegis_password}
+      POSTGRES_DB: ${DB_NAME:-aegis_db}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - aegis-network
+
+  # Redis (caching/scheduling)
+  redis:
+    image: redis:7-alpine
+    container_name: aegis-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - aegis-network
+
+volumes:
+  postgres_data:
+
+networks:
+  aegis-network:
+    driver: bridge
